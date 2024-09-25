@@ -7,7 +7,6 @@ public class Person
     double random;
     int count;
     
-    
     ArrayList<Double> Birthdays = new ArrayList<Double>();
 
     public void GenerateBirthdays(int value)

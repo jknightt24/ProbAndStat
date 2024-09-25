@@ -3,29 +3,39 @@ import java.util.ArrayList;
 public class Person
 {
     double birthday;
+    boolean sameBirthday;
+    double random;
     int count;
+    
+    
     ArrayList<Double> Birthdays = new ArrayList<Double>();
 
     public void GenerateBirthdays(int value)
     {
         for(int i = 0; i < value; i++)
         {
-            Birthdays.add(Math.random() * 364);
+            random = (int)(Math.random() * 364);
+            Birthdays.add(random);
         }
         birthday = (int)(Math.random() * 364);
+        System.out.println(birthday);
     }
 
-    public int CheckProbabilty(int runs)
+    public boolean CheckProbabilty()
     {
-        for(int i = 0; i < runs; i++)
+        count = 0;
+        for(int i = 0; i < Birthdays.size(); i++)
         {
-            if(birthday == Birthdays.get(i))
+            if(Birthdays.get(i) == birthday)
             {
-                count++;
+                sameBirthday = true;
+                break;
             }
-            System.out.println(count);
+            else
+            {
+                sameBirthday = false;
+            }
         }
-        return count;
-        
+        return sameBirthday;
     }
 }

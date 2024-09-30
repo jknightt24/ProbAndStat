@@ -1,6 +1,6 @@
 public class Charmander extends Pokemon
 {
-    public Charmaner()
+    public Charmander()
     {
         setHp(70);
     }

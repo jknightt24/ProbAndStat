@@ -14,42 +14,44 @@
     To attack, your pokemon must have energy. it deals damage to opponents hp.
     there are 6 spots on each persons field. One active, 5 bench. at most you can only have 6 pokemon in play but only 1 in the front spot can attack
 
-    */
+*/
 
 import java.util.ArrayList;
-import java.util.random;
+import java.util.Random;
+
 
 public class TCG 
 {
-    private ArrayList<Card> deck
-    private ArrayList<Card> hand
+    private ArrayList<Card> deck;
+    private ArrayList<Card> hand;
+    private int count;
 
-    public CardGame()
+    public void cardGame()
     {
-        deck = new ArrayList<>();
-        hand = new ArrayList<>();
+        deck = new ArrayList<>(60);
+        hand = new ArrayList<>(7);
     }
 
     public void fillDeck()
     {
-        for(int i = 0; i < 59; i++)
+        deck.add(new Charmander());
+
+        for(int i = 0; i < 58; i++)
         {
             deck.add(new Energy());
         }
-
-        deck.add(new Charmander());
     }
 
     public boolean checkHand()
     {
         for(Card singleCard : hand)
         {
-            if(singleCard insatanceof Pokemon)
+            if(singleCard instanceof Pokemon)
             {
                 return true;
             }
-            return false;
         }
+        return false;
     }
 
     public void drawHand()
@@ -58,16 +60,37 @@ public class TCG
 
         for(int i = 0; i < 7; i++)
         {
-            int cardToTakeIndex = rng.nextInt(deck.size() + 1)
-            hand.add(deck.get(cardToTakeIndex))
+            int cardToTakeIndex = rng.nextInt(deck.size() + 1);
+            hand.add(deck.get(cardToTakeIndex));
             deck.remove(cardToTakeIndex);
         }
     }
 
-    public void run();
+    public void run()
     {
+        cardGame();
         fillDeck();
         drawHand();
         checkHand();
+    }
+
+    public int onePokemonCard(int numberOfRuns)
+    {
+        count = 0;
+
+        for(int i = 0; i < numberOfRuns; i++)
+        {
+            if(checkHand() == true)
+            {
+                count += 1;
+                run(); 
+            }
+            else
+            {
+                run();
+            }
+        }
+        System.out.println(count);
+        return count;
     }
 }

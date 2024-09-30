@@ -1,12 +1,14 @@
 import java.util.ArrayList;
+import java.math.BigInteger;
 
-public class StatsLibrary
+public class StatsLibrary 
 {
     private double sum;
     private double Count;
     private double CountCompare;
     private double CurrentMode;
     private double Mean;
+    private BigInteger Factorial;
 
     public double Mean(ArrayList<Integer> ListOfNumbers)
     {
@@ -62,5 +64,25 @@ public class StatsLibrary
             sum = sum + Math.pow(singleNumber - Mean, 2);
         }
         return Math.sqrt(sum / ListOfNumbers.size());
+    }
+
+    public double Factorial(int Number)
+    {
+        Factorial = BigInteger.ONE;
+        for(int i = 1; i <= Number; i++)
+        {
+            Factorial = Factorial.multiply(BigInteger.valueOf(i));
+        }
+        return Factorial.doubleValue();
+    }
+
+    public double Combinations(int SizeofSample, int SizeOfCombinations)
+    {
+        return Factorial(SizeofSample) / (Factorial(SizeOfCombinations) * Factorial(SizeofSample - SizeOfCombinations));
+    }
+
+    public double Permutations(int AmountOfElements, int SizeOfSample)
+    {
+        return Factorial(AmountOfElements) / Factorial(AmountOfElements - SizeOfSample);
     }
 }

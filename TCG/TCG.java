@@ -91,7 +91,7 @@ public class TCG
                 run(amountOfPokemon);
             }
         }
-        System.out.println((count / numberOfRuns) * 100 + "%" + " for " + amountOfPokemon + " Pokemon");
+        System.out.println((count / numberOfRuns) * 100 + "%");
         return (count / numberOfRuns) * 100;
     }
 

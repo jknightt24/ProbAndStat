@@ -4,7 +4,13 @@ public class TCGTESTER
     {
         TCG game = new TCG();
         game.cardGame();
-
-        game.onePokemonCard(20);
+        for(int i = 0; i <= 60; i++)
+        {
+            game.onePokemonCard(50000, i);
+        }
+       // game.onePokemonCard(50000, 2);
+        //game.onePokemonCard(50000, 3);
+        
+        
     }
 }

@@ -24,16 +24,18 @@ public class TCG
 {
     private ArrayList<Card> deck;
     private ArrayList<Card> hand;
+    private ArrayList<Card> prizeCards;
     private double count;
 
     public void cardGame()
     {
         deck = new ArrayList<>(60);
         hand = new ArrayList<>(7);
+        prizeCards = new ArrayList<>(6);
         
     }
 
-    public void fillDeck(int amountOfPokemon)
+    public void fillDeck(int amountOfPokemon, int amountOfTrainer)
     {
         for(int i = 0; i < amountOfPokemon; i++)
         {
@@ -44,6 +46,23 @@ public class TCG
         {
             deck.add(new Energy());
         }
+
+        for(int i = 0; i < amountOfTrainer; i++)
+        {
+            deck.add(new RareCandy());
+        }
+    }
+
+    public void setPrizedCards()
+    {
+        Random rng = new Random();
+      
+        while(prizeCards.size() < 6)
+        {
+            int cardToTakeIndex = rng.nextInt(deck.size());
+            prizeCards.add(deck.get(cardToTakeIndex));
+            deck.remove(cardToTakeIndex);
+        }
     }
 
     public boolean checkHand()
@@ -51,6 +70,18 @@ public class TCG
         for(Card singleCard : hand)
         {
             if(singleCard instanceof Pokemon)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean checkDeck()
+    {
+        for(Card singleCard : deck)
+        {
+            if(singleCard instanceof Trainer)
             {
                 return true;
             }
@@ -73,9 +104,13 @@ public class TCG
     public void clear()
     {
         deck.clear();
+        hand.clear();
+        prizeCards.clear();
     }
 
-    public double onePokemonCard(double numberOfRuns, int amountOfPokemon)
+    
+
+    public double onePokemonCardOdds(double numberOfRuns, int amountOfPokemon, int amountOfTrainer)
     {
         count = 0;
 
@@ -84,23 +119,52 @@ public class TCG
             if(checkHand() == true)
             {
                 count += 1;
-                run(amountOfPokemon); 
+                run(amountOfPokemon, amountOfTrainer); 
             }
             else
             {
-                run(amountOfPokemon);
+                run(amountOfPokemon, amountOfTrainer);
             }
         }
         System.out.println((count / numberOfRuns) * 100 + "%");
         return (count / numberOfRuns) * 100;
     }
 
-    public void run(int amountOfPokemon)
+    public double isBricked(double numberOfRuns, int amountOfPokemon, int amountOfTrainer)
+    {
+        count = 0;
+
+        for(int i = 0; i < numberOfRuns; i++)
+        {
+            if(checkHand() == true)
+            {
+                setPrizedCards();
+
+                if(checkDeck() == true)
+                {
+                    run(amountOfPokemon, amountOfTrainer);
+                }
+                else
+                {
+                    count += 1;
+                    run(amountOfPokemon, amountOfTrainer);
+                }
+            }
+            else
+            {
+                run(amountOfPokemon, amountOfTrainer);
+            }
+        }
+        System.out.println((count / numberOfRuns) * 100 + "%");
+        return (count / numberOfRuns) * 100;
+
+    }
+
+    public void run(int amountOfPokemon, int amountOfTrainer)
     {
         cardGame();
-        fillDeck(amountOfPokemon);
+        fillDeck(amountOfPokemon, amountOfTrainer);
         drawHand();
-        clear();
     }
     /* 
     public double twoPokemonCard(int numberOfRuns)

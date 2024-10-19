@@ -1,4 +1,4 @@
-public class Card 
+public class Card extends TCG
 {
     private String name;
     

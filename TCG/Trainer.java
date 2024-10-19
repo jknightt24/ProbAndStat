@@ -9,6 +9,6 @@ public class Trainer extends Card
 
     public void setName(String userInputName)
     {
-        name = userInputName;
+        this.name = userInputName;
     }
 }

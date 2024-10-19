@@ -18,6 +18,7 @@
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 
 public class TCG 
@@ -25,17 +26,93 @@ public class TCG
     private ArrayList<Card> deck;
     private ArrayList<Card> hand;
     private ArrayList<Card> prizeCards;
-    private double count;
+    private ArrayList<Card> discardPile;
+    private ArrayList<Pokemon> bench;
+    private ArrayList<Card> activePokemon;
+
+
 
     public void cardGame()
     {
         deck = new ArrayList<>(60);
         hand = new ArrayList<>(7);
         prizeCards = new ArrayList<>(6);
-        
+        discardPile = new ArrayList<>(60);
+        bench = new ArrayList<>(5);
+        activePokemon = new ArrayList<>(1);
     }
 
-    public void fillDeck(int amountOfPokemon, int amountOfTrainer)
+    public void turnStart()
+    {
+        drawCard(1);
+
+        Scanner scan = new Scanner(System.in);
+
+        System.out.println("Please type in the name of the card you want to play. ");
+        String cardName = scan.nextLine();
+
+        for(Card singleCard : hand)
+        {
+            if(singleCard.getName().equals(cardName))
+            {
+                if(singleCard instanceof Pokemon)
+                {
+                    System.out.println("would you like to put this pokemon in the active spot or the bench?");
+                    String spot = scan.nextLine();
+
+                    if(spot.equals("active"))
+                    {
+                        activePokemon.add(singleCard);
+                        hand.remove(singleCard);
+                    }
+                    else if(spot.equals("bench"))
+                    {
+                        bench.add(singleCard);
+                        hand.remove(singleCard);
+                    }
+                }
+                else if(singleCard instanceof Energy)
+                {
+                    System.out.println("which pokemon would you like to attach this energy to?");
+                    String pokemonName = scan.nextLine();
+
+                    for(Pokemon singlePokemon : bench)
+                    {
+                        if(singlePokemon.getName().equals(pokemonName) && singlePokemon instanceof Pokemon)
+                        {
+                            singlePokemon.addEnergy((Energy)singleCard);
+                            hand.remove(singleCard);
+                        }
+                    }
+                }
+                else if(singleCard instanceof Trainer)
+                {
+                    singleCard.play(activePokemon.get(0));
+                    hand.remove(singleCard);
+                }
+            }
+        }
+    }
+
+    public void fillDeck(int amountOfPokemon, int amountOfEnergy)
+    {
+        for(int i = 0; i < amountOfPokemon; i++)
+        {
+            deck.add(new Charmander());
+        }
+
+        for(int i = 0; i < amountOfEnergy; i++)
+        {
+            deck.add(new FireEnergy());
+        }
+
+        for(int i = 0; i < 60 - (amountOfPokemon + amountOfEnergy); i++)
+        {
+            deck.add(new Potion());
+        }
+    }
+
+    public void fillDeckIsBricked(int amountOfPokemon)
     {
         for(int i = 0; i < amountOfPokemon; i++)
         {
@@ -44,12 +121,18 @@ public class TCG
 
         for(int i = 0; i < 60 - amountOfPokemon; i++)
         {
-            deck.add(new Energy());
+            deck.add(new Potion());
         }
+    }
 
-        for(int i = 0; i < amountOfTrainer; i++)
+    public void drawCard(int cards)
+    {
+        Random rng = new Random();
+        for(int i = 0; i < cards; i++)
         {
-            deck.add(new RareCandy());
+            int cardToTakeIndex = rng.nextInt(deck.size());
+            hand.add(deck.get(cardToTakeIndex));
+            deck.remove(cardToTakeIndex);
         }
     }
 
@@ -77,11 +160,24 @@ public class TCG
         return false;
     }
 
+    public boolean checkHandTrainer()
+    {
+        for(Card singleCard : hand)
+        {
+            if(singleCard instanceof Trainer)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean checkDeck()
     {
         for(Card singleCard : deck)
         {
-            if(singleCard instanceof Trainer)
+            System.out.println(singleCard.getName());
+            if(singleCard instanceof Pokemon)
             {
                 return true;
             }
@@ -108,21 +204,33 @@ public class TCG
         prizeCards.clear();
     }
 
+    public void setBoard(int amountOfPokemon, int amountOfEnergy)
+    {
+        cardGame();
+        fillDeck(amountOfPokemon, amountOfEnergy);
+        drawHand();
+
+        for(Card singleCard : hand)
+        {
+            System.out.print(singleCard.getName() + " ");
+        }
+    }
+
     
 
     public double onePokemonCardOdds(double numberOfRuns, int amountOfPokemon, int amountOfTrainer)
     {
-        count = 0;
+        double count = 0;
 
         for(int i = 0; i < numberOfRuns; i++)
         {
             if(checkHand() == true)
             {
-                count += 1;
                 run(amountOfPokemon, amountOfTrainer); 
             }
             else
             {
+                count += 1; 
                 run(amountOfPokemon, amountOfTrainer);
             }
         }
@@ -130,34 +238,35 @@ public class TCG
         return (count / numberOfRuns) * 100;
     }
 
-    public double isBricked(double numberOfRuns, int amountOfPokemon, int amountOfTrainer)
+    public double isBricked(double numberOfRuns, int amountOfPokemon)
     {
-        count = 0;
+        double count = 0;
+        runIsBricked(amountOfPokemon);
 
+        System.out.println(deck);
+        System.out.println(hand);
         for(int i = 0; i < numberOfRuns; i++)
         {
             if(checkHand() == true)
             {
-                setPrizedCards();
-
-                if(checkDeck() == true)
+                if(checkHandTrainer() == true || checkDeck() == true)
                 {
-                    run(amountOfPokemon, amountOfTrainer);
+                    runIsBricked(amountOfPokemon); 
                 }
                 else
                 {
-                    count += 1;
-                    run(amountOfPokemon, amountOfTrainer);
+                    count += 1; 
+                    runIsBricked(amountOfPokemon);
                 }
             }
             else
             {
-                run(amountOfPokemon, amountOfTrainer);
+                count += 1; 
+                runIsBricked(amountOfPokemon);
             }
         }
         System.out.println((count / numberOfRuns) * 100 + "%");
         return (count / numberOfRuns) * 100;
-
     }
 
     public void run(int amountOfPokemon, int amountOfTrainer)
@@ -166,46 +275,46 @@ public class TCG
         fillDeck(amountOfPokemon, amountOfTrainer);
         drawHand();
     }
-    /* 
-    public double twoPokemonCard(int numberOfRuns)
-    {
-        count = 0;
 
-        for(int i = 0; i < numberOfRuns; i++)
-        {
-            if(checkHand() == true)
-            {
-                count += 1;
-                run(2); 
-            }
-            else
-            {
-                run(2);
-            }
-        }
-        System.out.println((count / numberOfRuns) * 100 + "%");
-        return (count / numberOfRuns) * 100;
+    public void runIsBricked(int amountOfPokemon)
+    {
+        cardGame();
+        fillDeckIsBricked(amountOfPokemon);
+        drawHand();
     }
 
-    public double threePokemonCard(int numberOfRuns)
+    public void add(Card card, ArrayList<Card> list)
     {
-        count = 0;
-
-        for(int i = 0; i < numberOfRuns; i++)
-        {
-            if(checkHand() == true)
-            {
-                count += 1;
-                run(3); 
-            }
-            else
-            {
-                run(3);
-            }
-        }
-        System.out.println((count / numberOfRuns) * 100 + "%");
-        return (count / numberOfRuns) * 100;
+        list.add(card);
     }
-        */
-        
+
+    public ArrayList<Card> getActivePokemon()
+    {
+        return activePokemon;
+    }
+
+    public void setActivePokemon(ArrayList<Card> thisPokemon)
+    {
+        activePokemon = thisPokemon;
+    }
+
+    public ArrayList<Card> getBench()
+    {
+        return bench;
+    }
+
+    public void setBench(Card addedPokemon)
+    {
+        bench.add(addedPokemon);
+    }
+
+    public ArrayList<Card> getDiscardPile()
+    {
+        return discardPile;
+    }
+
+    public void setDiscardPile(Card addedCard)
+    {
+        discardPile.add(addedCard);
+    }
 }

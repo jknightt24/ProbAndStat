@@ -10,5 +10,5 @@ public class Energy extends Card
     public void setName(String userInputName)
     {
         name = userInputName;
-    } 
+    }
 }

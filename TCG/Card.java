@@ -1,4 +1,4 @@
-public class Card 
+public class Card extends TCG
 {
     private String name;
     
@@ -10,5 +10,10 @@ public class Card
     public void setName(String userInputName)
     {
         name = userInputName;
+    }
+
+    public void Play(Card card)
+    {
+        
     }
 }

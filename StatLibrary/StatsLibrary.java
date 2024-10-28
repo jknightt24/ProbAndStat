@@ -239,8 +239,24 @@ public class StatsLibrary
         return ConditionalProbability(A, B) * B + ConditionalProbability(A, complementRule(B)) * complementRule(B);
     }
 
+    /**
+     * @param A
+     * @param B
+     * @return Returns the probability of A given B using Bayes Theorem
+     */
     public double bayesTheorem(double A, double B)
     {
         return ConditionalProbability(A, B) * B / lawOfTotalProbability(A, B);
+    }
+
+    /**
+     * @param n
+     * @param y
+     * @param p
+     * @return Returns the binomial distribution of a given n, y, and p
+     */
+    public double binomialDistribution(int n, int y, double p)
+    {
+        return combination(n, y) * Math.pow(p, y) * Math.pow(1 - p, n - y);
     }
 }

@@ -1,3 +1,6 @@
+/*
+ * Potion is a subclass of Trainer. It has a name and a play method that heals the target Pokemon by 30 HP.
+ */
 public class Potion extends Trainer
 {
     public Potion()

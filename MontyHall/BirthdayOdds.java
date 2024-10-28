@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Person
+public class BirthdayOdds
 {
     int birthdayTarget;
     int random;
@@ -23,7 +23,7 @@ public class Person
 
     /**
      * Checks if two people have the same birthday in the list Birthdays
-     * @return boolean
+     * @return true if two people have the same birthday, false otherwise
      */
     public boolean CheckSameBirthday()
     { 

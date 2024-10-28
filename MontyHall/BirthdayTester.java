@@ -4,7 +4,7 @@ public class BirthdayTester
 {
     public static void main(String[] args) throws IOException
     {
-        Person Students = new Person();
+        BirthdayOdds Students = new BirthdayOdds();
 
         Students.runTrial(100000, 20);
     }

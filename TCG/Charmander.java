@@ -1,3 +1,7 @@
+/*
+ * Charmander is a class that extends Pokemon and creates a Charmander object with the following attributes:
+ * Name, HP, type, resistance, weakness, and retreat cost. It also has the following methods: Collect and Ember.
+ */
 public class Charmander extends Pokemon
 {
     public Charmander()

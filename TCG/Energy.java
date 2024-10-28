@@ -1,4 +1,8 @@
-public class Energy extends Card
+/**
+ * Eenergy is a subclass of Card that represents the energy cards in the game.
+ * It has a name attribute
+ */
+public abstract class Energy extends Card
 {
     private String name;
 

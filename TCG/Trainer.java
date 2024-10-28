@@ -1,4 +1,7 @@
-public class Trainer extends Card 
+/**
+ * Trainer is a subclass of Card. It has a name field and a getName and setName method.
+ */
+public abstract class Trainer extends Card 
 {
     private String name;
 

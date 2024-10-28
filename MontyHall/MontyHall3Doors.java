@@ -12,7 +12,6 @@ public class MontyHall3Doors
     /**
      * This method plays the Monty Hall 3 doors game 1000000 number of times and calculates the win and loss percentage
      * uses the strategy of always switching doors to gain a higher win percentage
-     * @return void
      */
     public void PlayDaGame()
     {

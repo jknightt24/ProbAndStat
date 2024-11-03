@@ -12,6 +12,7 @@ public class Charmander extends Pokemon
         setResistance("None");
         setWeakness("Water");
         setRetreatCost(1, "Basic");
+        setAttackCost(1, 2);
     }
 
     public void Collect()
@@ -27,12 +28,15 @@ public class Charmander extends Pokemon
         }
     }
 
-    public void Ember(Pokemon enemy)
+    @Override
+    public void attack1(Pokemon enemy)
     {
-        if(getEnergyAmount().contains("Fire"))
+        System.out.println("Charmander used Ember");
+
+        if(canAttack1() && getEnergyAmount().contains("Fire"))
         {
             getEnergyAmount().remove("Fire");
-            attack2(enemy, 30);
+            enemy.setHp(enemy.getHp() - 30);
         }
         else
         {

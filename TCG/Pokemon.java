@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Pokemon extends Card
+public class Pokemon extends Card implements Moves
 {
      private String name;
      private int hp;
@@ -9,6 +9,8 @@ public class Pokemon extends Card
      private String resistance;
      private String type;
      private ArrayList<Energy> energyAmount;
+     private int attack1Cost;
+     private int attack2Cost;
 
 
         public Pokemon()
@@ -101,13 +103,9 @@ public class Pokemon extends Card
         energyAmount.remove(energy);
     }
 
-    public void addEnergyToPokemon(Energy energy)
+    public void attack1(Pokemon target)
     {
-        energyAmount.add(energy);
-    }
-
-    public void attack1(Pokemon target, int damage)
-    {
+        int damage = 30;
         if(this.getType().equals(target.getWeakness()))
         {
             target.setHp(target.getHp() - (damage * 2));
@@ -118,8 +116,21 @@ public class Pokemon extends Card
         }
     }
 
-    public void attack2(Pokemon target, int damage)
+    public boolean canAttack1()
     {
+        if(energyAmount.size() >= attack1Cost)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void attack2(Pokemon target)
+    {
+        int damage = 30;
         if(this.getType().equals(target.getWeakness()))
         {
             target.setHp(target.getHp() - (damage * 2));
@@ -128,6 +139,30 @@ public class Pokemon extends Card
         {
             target.setHp(target.getHp() - damage);
         }
+    }
+
+    public boolean canAttack2()
+    {
+        if(energyAmount.size() >= attack2Cost)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public void getAttackCost()
+    {
+        System.out.println("Attack 1 cost: " + attack1Cost);
+        System.out.println("Attack 2 cost: " + attack2Cost);
+    }
+
+    public void setAttackCost(int attack1, int attack2)
+    {
+        attack1Cost = attack1;
+        attack2Cost = attack2;
     }
 
     public void pokemonKnockedOut(Pokemon thisPokemon)
@@ -153,5 +188,14 @@ public class Pokemon extends Card
     public void heal(int amount)
     {
         setHp(getHp() + amount);
+    }
+
+    
+
+    @Override
+    public void play(Pokemon targetPokemon)
+    {
+        System.out.println("You played a " + getName() + " card!");
+        getActivePokemon().add(this);
     }
 }

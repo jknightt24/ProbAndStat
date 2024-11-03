@@ -15,22 +15,23 @@
     there are 6 spots on each persons field. One active, 5 bench. at most you can only have 6 pokemon in play but only 1 in the front spot can attack
 
 */
-
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
-
 public class TCG 
 {
+    private int count;
     private ArrayList<Card> deck;
-    private ArrayList<Card> hand;
+    private LinkedList<Card> hand;
     private ArrayList<Card> prizeCards;
-    private ArrayList<Card> discardPile;
-    private ArrayList<Pokemon> bench;
-    private ArrayList<Card> activePokemon;
-
-
+    private LinkedList<Card> discardPile;
+    private LinkedList<Pokemon> bench;
+    private LinkedList<Pokemon> activePokemon;
+    private Player player1;
+    private Player player2;
 
     /**
      * Constructor for objects of class TCG
@@ -39,11 +40,33 @@ public class TCG
     public void cardGame()
     {
         deck = new ArrayList<>(60);
-        hand = new ArrayList<>(7);
+        hand = new LinkedList<>();
         prizeCards = new ArrayList<>(6);
-        discardPile = new ArrayList<>(60);
-        bench = new ArrayList<>(5);
-        activePokemon = new ArrayList<>(1);
+        discardPile = new LinkedList<>();
+        bench = new LinkedList<>();
+        activePokemon = new LinkedList<>();
+    }
+
+    /**
+     * Calls cardGame() to initialize the deck, hand, prizeCards, discardPile, bench, and activePokemon
+     * Fills the deck with the amount of pokemon and energy cards specified
+     * Draws 7 cards from the deck and adds them to the hand
+     * If the starting hand doesnt contain a single pokemon card, it will put the cards back in the deck and draw a new hand
+     * Sets the prize cards by randomly taking 6 cards from the deck and adding them to the prizeCards arraylist
+     * @param amountOfPokemon
+     * @param amountOfEnergy
+     */
+    public void setBoard(int amountOfPokemon, int amountOfEnergy)
+    {
+        cardGame();
+        fillDeck(amountOfPokemon, amountOfEnergy);
+        drawHand();
+        if(checkHand() == false)
+        {
+            mulligan();
+            count++;
+        }
+        setPrizedCards();
     }
 
     /**
@@ -52,53 +75,167 @@ public class TCG
      */
     public void turnStart()
     {
-        drawCard(1);
+        int count = 0;
+
+        if(count == 0)
+        {
+            setBoard(20, 20);
+            count++;
+        }
+        else
+        {
+            drawCard(1);
+        }
+        
+        
+        showHand();
+        if(activePokemon.isEmpty())
+        {
+            Scanner scan = new Scanner(System.in);
+
+            System.out.println("Please put one of your pokemon in hand into the active spot");
+            String input = scan.nextLine();
+
+            Iterator<Card> iterator = hand.iterator();
+            while (iterator.hasNext()) 
+            {
+                Card singleCard = iterator.next();
+                if(singleCard.getName().equalsIgnoreCase(input)) 
+                {
+                    if(singleCard instanceof Pokemon)
+                    {
+                        activePokemon.add((Pokemon)singleCard);
+                        iterator.remove();
+                        showBoard();
+                        showHand();
+                        break;
+                    }
+                    else
+                    {
+                        throw new IllegalArgumentException("You must put a pokemon card in the active spot");
+                    }
+                }
+                
+            }
+        }
+        
 
         Scanner scan = new Scanner(System.in);
-
-        System.out.println("Please type in the name of the card you want to play. ");
-        String cardName = scan.nextLine();
-
-        for(Card singleCard : hand)
+        System.out.println("How would you like to play the rest of your turn? ");
+        System.out.println("Also you can see your board state by typing "+ "show board " + " or attack ");
+        String input = scan.nextLine();
+        while(!input.equalsIgnoreCase("end turn"))
         {
-            if(singleCard.getName().equals(cardName))
+            if(input.equalsIgnoreCase("show board"))
             {
-                if(singleCard instanceof Pokemon)
-                {
-                    System.out.println("would you like to put this pokemon in the active spot or the bench?");
-                    String spot = scan.nextLine();
+                this.showBoard();
+                input = scan.nextLine();
+            }
+            else if(input.equalsIgnoreCase("attack"))
+            {
+                System.out.println("Which attack would you like to use? ");
+                System.out.println("Attack 1 or Attack 2");
+                input = scan.nextLine();
 
-                    if(spot.equals("active"))
-                    {
-                        activePokemon.add(singleCard);
-                        hand.remove(singleCard);
-                    }
-                    else if(spot.equals("bench"))
-                    {
-                        bench.add((Pokemon)singleCard);
-                        hand.remove(singleCard);
-                    }
-                }
-                else if(singleCard instanceof Energy)
+                if(input.equalsIgnoreCase("attack 1"))
                 {
-                    System.out.println("which pokemon would you like to attach this energy to?");
-                    String pokemonName = scan.nextLine();
-
-                    for(Pokemon singlePokemon : bench)
-                    {
-                        if(singlePokemon.getName().equals(pokemonName) && singlePokemon instanceof Pokemon)
-                        {
-                            singlePokemon.addEnergy((Energy)singleCard);
-                            hand.remove(singleCard);
-                        }
-                    }
+                    activePokemon.get(0).attack1(activePokemon.get(0));
+                    this.showBoard();
+                    input = scan.nextLine();
                 }
-                else if(singleCard instanceof Trainer)
+                else if(input.equalsIgnoreCase("attack 2"))
                 {
-                    singleCard.Play(activePokemon.get(0));
-                    hand.remove(singleCard);
+                    activePokemon.get(0).attack2(activePokemon.get(0));
+                    showBoard();
+                    input = scan.nextLine();
                 }
             }
+
+            Iterator<Card> iterator = hand.iterator();
+            while(iterator.hasNext())
+            {
+                Card singleCard = iterator.next();
+                
+                if(singleCard.getName().equalsIgnoreCase(input))
+                {
+                    if(singleCard instanceof Pokemon)
+                    {
+                        bench.add((Pokemon)singleCard);
+                        iterator.remove();
+                        showBoard();
+                        showHand();
+                        input = scan.nextLine();
+                    }
+                    else if(singleCard instanceof Energy)
+                    {
+                        System.out.println("which pokemon would you like to attach this energy to?");
+                        String pokemonName = scan.nextLine();
+
+                        for(Pokemon singlePokemon : activePokemon)
+                        {
+                            if(singlePokemon.getName().equalsIgnoreCase(pokemonName))
+                            {
+                                singleCard.play(singlePokemon);
+                                iterator.remove();
+                                
+                                activePokemon.get(0).getEnergyAmount();
+                                
+                                showBoard();
+                                showHand();
+
+                                System.out.println("How would you like to play the rest of your turn? ");
+                                input = scan.nextLine();
+                            }
+                        }
+                        
+                    }
+                    else if(singleCard instanceof Trainer)
+                    {
+                        singleCard.play(activePokemon.get(0));
+                        iterator.remove();
+                        break;
+                    }
+                }
+            }
+        }
+        System.out.println("End of turn");
+        
+    }
+
+    public void startBattle()
+    {
+        player1 = new Player("Player 1");
+        player2 = new Player("Player 2");
+
+        player1.setBoard(20,20);
+        player2.setBoard(20,20);
+
+        Random rng = new Random();
+        while(player1.getPrizeCards() > 0 && player2.getPrizeCards() > 0)
+        {
+            if(rng.nextInt(2) == 0)
+            {
+                System.out.println("Player 1's turn");
+                player1.turnStart();
+                System.out.println("Player 2's turn");
+                player2.turnStart();
+            }
+            else
+            {
+                System.out.println("Player 2's turn");
+                player2.turnStart();
+                System.out.println("Player 1's turn");
+                player1.turnStart();
+                
+            }
+        }
+        if(player1.getPrizeCards() == 0)
+        {
+            System.out.println("Player 2 wins!");
+        }
+        else if(player2.getPrizeCards() == 0)
+        {
+            System.out.println("Player 1 wins!");
         }
     }
 
@@ -173,6 +310,16 @@ public class TCG
         }
     }
 
+    public int getPrizeCards()
+    {
+        int count = 0;
+        for(Card singleCard : prizeCards)
+        {
+            count++;
+        }
+        return count;
+    }
+
     /**
      * Checks if there is a pokemon card in the hand
      * @return true if there is a pokemon card in the hand and false if there is not
@@ -240,6 +387,7 @@ public class TCG
 
     /**
      * Draws 7 cards from the deck and adds them to the hand
+     * If the starting hand doesnt contain a single pok
      */
     public void drawHand()
     {
@@ -250,6 +398,22 @@ public class TCG
             int cardToTakeIndex = rng.nextInt(deck.size());
             hand.add(deck.get(cardToTakeIndex));
             deck.remove(cardToTakeIndex);
+        }
+
+        if(checkHand() == false)
+        {
+            Iterator<Card> iterator = hand.iterator();
+            while(iterator.hasNext())
+            {
+                Card singleCard = iterator.next();
+                while(hand.size() != 0)
+                {
+                    deck.add(singleCard);
+                    iterator.remove();
+                }
+            }
+
+            drawHand();
         }
     }
 
@@ -263,17 +427,7 @@ public class TCG
         prizeCards.clear();
     }
 
-    public void setBoard(int amountOfPokemon, int amountOfEnergy)
-    {
-        cardGame();
-        fillDeck(amountOfPokemon, amountOfEnergy);
-        drawHand();
-
-        for(Card singleCard : hand)
-        {
-            System.out.print(singleCard.getName() + " ");
-        }
-    }
+    
 
     /**
      * Caclulates the odds of drawing a pokemon card in your hand given the amount of pokemon cards in the deck
@@ -379,7 +533,7 @@ public class TCG
     /**
      * @return the arraylist containing the card in the active spot
      */
-    public ArrayList<Card> getActivePokemon()
+    public LinkedList<Pokemon> getActivePokemon()
     {
         return activePokemon;
     }
@@ -388,7 +542,7 @@ public class TCG
      * sets a specified card in the active spot
      * @param thisPokemon
      */
-    public void setActivePokemon(ArrayList<Card> thisPokemon)
+    public void setActivePokemon(LinkedList<Pokemon> thisPokemon)
     {
         activePokemon = thisPokemon;
     }
@@ -396,7 +550,7 @@ public class TCG
     /**
      * @return the arraylist containing the cards in the bench
      */
-    public ArrayList<Pokemon> getBench()
+    public LinkedList<Pokemon> getBench()
     {
         return bench;
     }
@@ -413,7 +567,7 @@ public class TCG
     /**
      * @return the arraylist containing the discardPile
      */
-    public ArrayList<Card> getDiscardPile()
+    public LinkedList<Card> getDiscardPile()
     {
         return discardPile;
     }
@@ -426,4 +580,76 @@ public class TCG
     {
         discardPile.add(addedCard);
     }
+
+    public void showHand()
+    {
+        System.out.println("-----------------");
+        for(Card singleCard : hand)
+        {
+            System.out.println(singleCard.getName());
+        }
+        System.out.println("-----------------");
+    }
+
+    public void showBoard()
+    {
+        System.out.println("-----------------");
+        System.out.println("Active Pokemon: ");
+        System.out.println(activePokemon.get(0).getName());
+        if(activePokemon.get(0).getEnergyAmount().size() > 0)
+        {
+            System.out.println("Energy: ");
+            for(Energy singleEnergy : activePokemon.get(0).getEnergyAmount())
+            {
+                System.out.println(singleEnergy.getName());
+            }
+        }
+
+        System.out.println("Bench: ");
+        for(Pokemon singlePokemon : bench)
+        {
+            System.out.println(singlePokemon.getName());
+        }
+        for(Pokemon singlePokemon : bench)
+        {
+            if(singlePokemon.getEnergyAmount().size() > 0)
+            {
+                System.out.println("Energy: ");
+                for(Energy singleEnergy : singlePokemon.getEnergyAmount())
+                {
+                    System.out.println(singleEnergy.getName());
+                }
+            }
+        }
+
+        System.out.println("Prize Cards: ");
+        System.out.println(prizeCards.size());
+
+        System.out.println("Discard Pile: ");
+        for(Card singleCard : discardPile)
+        {
+            System.out.println(singleCard.getName());
+        }
+        System.out.println("-----------------");
+    }
+
+    public void mulligan()
+    {
+        if(checkHand() == false)
+        {
+            Iterator<Card> iterator = hand.iterator();
+            while(iterator.hasNext())
+            {
+                Card singleCard = iterator.next();
+                while(hand.size() != 0)
+                {
+                    deck.add(singleCard);
+                    iterator.remove();
+                }
+            }
+        }
+    }
+
+    
+    
 }

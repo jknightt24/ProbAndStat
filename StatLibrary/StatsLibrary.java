@@ -259,4 +259,14 @@ public class StatsLibrary
     {
         return combination(n, y) * Math.pow(p, y) * Math.pow(1 - p, n - y);
     }
+
+    /**
+     * @param n
+     * @param p
+     * @return Returns the geometric distribution of a given n and p
+     */
+    public double geometricDistribution(int n, double p)
+    {
+        return Math.pow(1 - p, n - 1) * p;
+    }
 }

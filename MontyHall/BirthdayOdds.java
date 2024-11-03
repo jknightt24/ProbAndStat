@@ -31,7 +31,7 @@ public class BirthdayOdds
         {
             for(int j = i + 1; j < Birthdays.size(); j++)
             {
-                if(Birthdays.get(i) == Birthdays.get(j))
+                if(Birthdays.get(i).equals(Birthdays.get(j)))
                 {
                     return true;
                 }
